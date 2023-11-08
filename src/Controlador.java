@@ -13,6 +13,6 @@ public class Controlador {
 	}
 
 	public void Control() {
-		//Todos los eventos de los botones dentro
+		
 	}
 }
