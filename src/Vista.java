@@ -10,22 +10,6 @@ public class Vista extends JFrame {
 	private JPanel contentPane;
 
 	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					Vista frame = new Vista();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
-
-	/**
 	 * Create the frame.
 	 */
 	public Vista() {
@@ -36,5 +20,6 @@ public class Vista extends JFrame {
 
 		setContentPane(contentPane);
 	}
+	//Hacer Get de los elementos de interfaz para poder añadirles eventos desde la clase 'Controlador'
 
 }
