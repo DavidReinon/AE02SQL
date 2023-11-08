@@ -16,7 +16,12 @@ public class Model {
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 
 			String rutaDirectoriActual = System.getProperty("user.dir");
-
+			if (tipusUser.equals("client")) {
+				rutaDirectoriActual += "\\client.xml";
+			} else if (tipusUser.equals("admin")) {
+				rutaDirectoriActual += "\\admin.xml";
+			}
+			
 			Document document = dBuilder.parse(new File(rutaDirectoriActual));
 			// Element raiz = document.getDocumentElement();
 			NodeList nodeList = document.getElementsByTagName("credentials");
