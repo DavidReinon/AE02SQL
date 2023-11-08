@@ -13,6 +13,6 @@ public class Controlador {
 	}
 
 	public void Control() {
-		
+		//Cambio
 	}
 }
