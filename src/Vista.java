@@ -18,7 +18,7 @@ public class Vista extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JTable table;
-
+//Prueba confirmación
 	/**
 	 * Create the frame.
 	 */
