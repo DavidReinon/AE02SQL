@@ -13,20 +13,34 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import clases.EncriptadorContrasenya;
+import clases.UserConexioBD;
+
 public class Model {
-	public Connection openConexion() {
-		Connection con = null;
+
+	private Connection con = null;
+
+	public void openConexion(String tipusUser) {
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
-			UserConexioBD userConexioBD = credencialsConexioBD("client");
-			System.out.println(userConexioBD.toString());
+			UserConexioBD userConexioBD = credencialsConexioBD(tipusUser);
+			// System.out.println(userConexioBD.toString());
 			con = DriverManager.getConnection(userConexioBD.getUrl(), userConexioBD.getUsuari(),
 					userConexioBD.getContrasenya());
-			return con;
 		} catch (Exception e) {
-			// TODO: handle exception
+
 		}
-		return con;
+	}
+
+	public void closeConexion() {
+		try {
+			if (con != null) {
+				con.close();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+
+		}
 	}
 
 	private UserConexioBD credencialsConexioBD(String tipusUser) {
@@ -65,7 +79,7 @@ public class Model {
 		return userConexioBD;
 	}
 
-	public boolean comprobarUserExisteix(String nom, Connection con) {
+	public boolean comprobarUserExisteix(String nom) {
 		boolean usuarioExiste = false;
 		try {
 			String nomString = nom;
@@ -88,27 +102,54 @@ public class Model {
 		return usuarioExiste;
 	}
 
-	public boolean comprobarContrasenyaCorrecta(String nom, Connection con) {
-		boolean correcta = false;
+	public boolean comprobarContrasenya(String usuari, String contrasenya) {
+		boolean contrasenyaCorrecta = false;
 		try {
-			String nomString = nom;
-
-			// Realiza la consulta preparada para evitar la inyección de SQL
-			String query = "SELECT user FROM users WHERE user = ?";
+			// Realiza la consulta para obtener la contraseña encriptada almacenada para el
+			// usuario
+			String query = "SELECT pass FROM users WHERE user = ?";
 			PreparedStatement pstmt = con.prepareStatement(query);
-			pstmt.setString(1, nomString);
+			pstmt.setString(1, usuari);
 
 			ResultSet rs = pstmt.executeQuery();
+
 			if (rs.next()) {
-				usuarioExiste = true;
+				String contrasenaAlmacenadaEncriptada = rs.getString("pass");
+				String contrasenaUsuarioEncriptada = new EncriptadorContrasenya().encryptToMD5(contrasenya);
+
+				if (contrasenaAlmacenadaEncriptada.equals(contrasenaUsuarioEncriptada)) {
+					contrasenyaCorrecta = true;
+				}
 			}
 
-			pstmt.close();
+			pstmt.close(); // Cierra la declaración preparada
 		} catch (SQLException e) {
-			e.printStackTrace();
-			System.out.print("No es va poder realitzar el select del user");
+			e.printStackTrace(); // Manejo básico de excepciones. Considera manejarlas de forma más apropiada.
 		}
-		return usuarioExiste;
+		return contrasenyaCorrecta;
+	}
+
+	public boolean executarConsulta(String consulta) {
+		boolean correcte = false;
+		try {
+			java.sql.Statement stmt = con.createStatement();
+			ResultSet rs = stmt.executeQuery(consulta);
+			while (rs.next()) {
+				String registre = "";
+				for (int i = 1; i < rs.getMetaData().getColumnCount(); i++) {
+					// Comença per 1 el length de las columnes, no 0.
+					registre += " - " + rs.getString(i);
+				}
+				System.out.println(registre);
+			}
+
+			rs.close();
+			stmt.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+
+		return correcte;
 	}
 
 }

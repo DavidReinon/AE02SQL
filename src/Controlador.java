@@ -16,8 +16,8 @@ public class Controlador {
 	private Model Model;
 	private Vista Vista;
 	private IniciSesio IniciSesio;
-	private Connection con;
 	private ActionListener actionListenerBtnInici;
+	private ActionListener actionListenerExecutarConsulta;
 
 	Controlador(IniciSesio IniciSesio, Model Model) {
 		this.IniciSesio = IniciSesio;
@@ -26,28 +26,42 @@ public class Controlador {
 	}
 
 	public void Control() {
-		con = Model.openConexion();
+
+		Model.openConexion("client");
 		actionListenerBtnInici = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (IniciSesio.getNom().getText().isEmpty()) {
-					JOptionPane.showMessageDialog(null, "L'apartat nom esta buit.", "Error", JOptionPane.ERROR_MESSAGE);
-					
-				} else if (IniciSesio.getContrasenya().getText().isEmpty()) {
-					JOptionPane.showMessageDialog(null, "L'apartat contrasenya esta buit.", "Error",
+				String nomString = IniciSesio.getNom().getText();
+				String contrasenyaString = IniciSesio.getContrasenya().getText();
+				if (nomString.isEmpty() || contrasenyaString.isEmpty()) {
+					JOptionPane.showMessageDialog(null, "Els apartats no poden estar buits.", "Error",
+							JOptionPane.ERROR_MESSAGE);
+
+				} else if (!Model.comprobarUserExisteix(nomString)) {
+					JOptionPane.showMessageDialog(null, "L'usuari especificat no existeix.", "Error",
+							JOptionPane.ERROR_MESSAGE);
+
+				} else if (!Model.comprobarContrasenya(nomString, contrasenyaString)) {
+					JOptionPane.showMessageDialog(null, "La contrasenya no es correcta.", "Error",
 							JOptionPane.ERROR_MESSAGE);
 				} else {
-					String nomString = IniciSesio.getNom().getText();
-					if (!Model.comprobarUserExisteix(nomString, con)) {
-						JOptionPane.showMessageDialog(null, "L'usuari especificat no existeix.", "Error",
-								JOptionPane.ERROR_MESSAGE);
-					} else {
-						JOptionPane.showMessageDialog(null, "L'apartat nom no es troba.", "Error",
-								JOptionPane.ERROR_MESSAGE);
+					// Comprobacions correctes
+					if (nomString.equals("administrador1")) {
+						Model.closeConexion();
+						Model.openConexion("admin");
 					}
+					IniciSesio.dispose();
+					Vista = new Vista();
 				}
 			}
 		};
 		IniciSesio.getIniciSessi().addActionListener(actionListenerBtnInici);
+		
+		actionListenerExecutarConsulta = new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String consultaString = Vista.getConsulta().getText();
+				
+			}
+		};
 	}
 
 }

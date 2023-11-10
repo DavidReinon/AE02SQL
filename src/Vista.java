@@ -18,7 +18,8 @@ public class Vista extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JTable table;
-//Prueba confirmación
+	private JTextArea textAreaConsulta;
+
 	/**
 	 * Create the frame.
 	 */
@@ -72,9 +73,12 @@ public class Vista extends JFrame {
 		scrollPane.setBounds(109, 380, 466, 54);
 		contentPane.add(scrollPane);
 		
-		JTextArea textArea = new JTextArea();
-		textArea.setLineWrap(true);
-		scrollPane.setViewportView(textArea);
+		textAreaConsulta = new JTextArea();
+		textAreaConsulta.setLineWrap(true);
+		scrollPane.setViewportView(textAreaConsulta);
 		setVisible(true);
+	}
+	public JTextArea getConsulta() {
+		return textAreaConsulta;
 	}
 }

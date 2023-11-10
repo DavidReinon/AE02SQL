@@ -1,3 +1,5 @@
+package clases;
+
 public class UserConexioBD {
 	private String url;
 	private String usuari;
