@@ -36,4 +36,8 @@ public class UserConexioBD {
 	public UserConexioBD() {
 
 	}
+
+	public String toString() {
+		return "Url: " + url + " Usuari: " + usuari + " Contraseña: " + contrasenya;
+	}
 }
