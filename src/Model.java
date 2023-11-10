@@ -3,7 +3,10 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -129,27 +132,41 @@ public class Model {
 		return contrasenyaCorrecta;
 	}
 
-	public boolean executarConsulta(String consulta) {
-		boolean correcte = false;
-		try {
-			java.sql.Statement stmt = con.createStatement();
-			ResultSet rs = stmt.executeQuery(consulta);
-			while (rs.next()) {
-				String registre = "";
-				for (int i = 1; i < rs.getMetaData().getColumnCount(); i++) {
-					// Comença per 1 el length de las columnes, no 0.
-					registre += " - " + rs.getString(i);
-				}
-				System.out.println(registre);
-			}
+	public ArrayList<ArrayList<Object>> ejecutarConsulta(String consulta) {
+	    ArrayList<ArrayList<Object>> resultado = new ArrayList<>();
 
-			rs.close();
-			stmt.close();
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
+	    try {
+	        Statement stmt = con.createStatement();
 
-		return correcte;
+	        if (consulta.trim().toLowerCase().startsWith("select")) {
+	            ResultSet rs = stmt.executeQuery(consulta);
+	            
+	            ResultSetMetaData metaData = rs.getMetaData();
+	            int numColumnas = metaData.getColumnCount();
+
+	            for (int i = 1; i <= numColumnas; i++) {
+	                ArrayList<Object> columna = new ArrayList<>();
+	                columna.add(metaData.getColumnName(i));
+	                resultado.add(columna);
+	            }
+
+	            while (rs.next()) {
+	                for (int i = 1; i <= numColumnas; i++) {
+	                    resultado.get(i - 1).add(rs.getObject(i));
+	                }
+	            }
+	        } else {
+	            resultado = null;
+	        }
+
+	        stmt.close();
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+
+	    return resultado;
 	}
+
+
 
 }

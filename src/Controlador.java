@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import javax.lang.model.element.NestingKind;
 import javax.swing.JOptionPane;
@@ -55,13 +56,18 @@ public class Controlador {
 			}
 		};
 		IniciSesio.getIniciSessi().addActionListener(actionListenerBtnInici);
-		
+
 		actionListenerExecutarConsulta = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String consultaString = Vista.getConsulta().getText();
-				
-			}
+				ArrayList<ArrayList<Object>> resultatConsulta = Model.ejecutarConsulta(consultaString);
+				if (resultatConsulta != null) {
+					//Select
+					
+				} else {
+					//Update, Insert o Delete
+				}
+			};
 		};
 	}
-
 }
