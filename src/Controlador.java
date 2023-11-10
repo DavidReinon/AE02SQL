@@ -1,6 +1,7 @@
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -43,19 +44,23 @@ public class Controlador {
 	}
 	
 	public boolean comprobarNombre() {
-        try {
-            String query = "SELECT * FROM tabla_usuarios WHERE nombre = ?";
-            try (PreparedStatement pstmt = con.prepareStatement(query)) {
-                pstmt.setString(1, IniciSesio.getNom().getText());  
+		UserConexioBD userConexio = Model.credencialsConexioBD("client");
+	        try (Connection con = DriverManager.getConnection(userConexio.getUrl(), userConexio.getUsuari(), userConexio.getContrasenya())) {
+	            System.out.println("Conexión realizada con éxito");
 
-                try (ResultSet rs = pstmt.executeQuery()) {
-                    return rs.next();
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();  // Manejo básico de excepciones. Considera manejarlo de una manera más robusta en tu aplicación.
-        }
-        return false;  // En caso de error o si el nombre no existe
-	}
+	            String query = "SELECT * FROM users WHERE user = ?";
+	            try (PreparedStatement pstmt = con.prepareStatement(query)) {
+	                pstmt.setString(1, IniciSesio.getNom().getText());
+
+	                try (ResultSet rs = pstmt.executeQuery()) {
+	                    return rs.next();  // Devuelve true si hay algún resultado, es decir, si el nombre ya existe
+	                }
+	            }
+	            
+	        } catch (SQLException e) {
+	            e.printStackTrace();  // Manejo básico de excepciones. Considera manejarlo de una manera más robusta en tu aplicación.
+	        }
+	        return false;  // En caso de error o si el nombre no existe
+	    }
 }
 
