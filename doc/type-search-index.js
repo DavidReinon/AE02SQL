@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"<Unnamed>","l":"Controlador"},{"p":"clases","l":"EncriptadorContrasenya"},{"p":"<Unnamed>","l":"IniciSesio"},{"p":"<Unnamed>","l":"Model"},{"p":"<Unnamed>","l":"Principal"},{"p":"clases","l":"UserConexioBD"},{"p":"<Unnamed>","l":"Vista"}];updateSearchResults();
