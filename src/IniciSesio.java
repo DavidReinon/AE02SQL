@@ -1,4 +1,3 @@
-import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -8,14 +7,21 @@ import javax.swing.JLabel;
 import java.awt.Font;
 import javax.swing.JTextField;
 import javax.swing.JButton;
+import javax.swing.JPasswordField;
 
+/**
+ * Interfaz que gestiona el Inici de sesió.
+ * 
+ * @author David Reinón
+ * @author Alejandro Tos
+ */
 public class IniciSesio extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JTextField textFieldNom;
-	private JTextField textFieldContrasenya;
 	private JButton btnIniciSessi;
+	private JPasswordField passwordField;
 
 	/**
 	 * Create the frame.
@@ -25,6 +31,7 @@ public class IniciSesio extends JFrame {
 		setBounds(100, 100, 511, 292);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setLocationRelativeTo(null);
 
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
@@ -55,17 +62,24 @@ public class IniciSesio extends JFrame {
 		panel.add(textFieldNom);
 		textFieldNom.setColumns(10);
 
-		textFieldContrasenya = new JTextField();
-		textFieldContrasenya.setColumns(10);
-		textFieldContrasenya.setBounds(111, 118, 130, 20);
-		panel.add(textFieldContrasenya);
-
 		btnIniciSessi = new JButton("Inici Sessió");
 		btnIniciSessi.setBackground(Color.WHITE);
 		btnIniciSessi.setBounds(78, 179, 101, 23);
 		panel.add(btnIniciSessi);
 
+		passwordField = new JPasswordField();
+		passwordField.setBounds(111, 118, 130, 20);
+		panel.add(passwordField);
+
 		setVisible(true);
+	}
+
+	/**
+	 * Vacia la informció que puga haber en els elements de la interfaz.
+	 */
+	public void vaciarCamps() {
+		textFieldNom.setText("");
+		passwordField.setText(new String(new char[0]));
 	}
 
 	public JButton getIniciSessi() {
@@ -76,7 +90,7 @@ public class IniciSesio extends JFrame {
 		return textFieldNom;
 	}
 
-	public JTextField getContrasenya() {
-		return textFieldContrasenya;
+	public JPasswordField getContrasenya() {
+		return passwordField;
 	}
 }

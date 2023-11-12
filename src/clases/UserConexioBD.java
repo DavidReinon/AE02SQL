@@ -1,5 +1,11 @@
 package clases;
 
+/**
+ * Clase per guardar la informacio per conectarse a una BD
+ * 
+ * @author David Reinón
+ * @author Alejandro Tos
+ */
 public class UserConexioBD {
 	private String url;
 	private String usuari;

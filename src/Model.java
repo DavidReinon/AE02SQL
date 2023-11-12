@@ -19,10 +19,26 @@ import org.w3c.dom.NodeList;
 import clases.EncriptadorContrasenya;
 import clases.UserConexioBD;
 
+/**
+ * Gestiona tots el metodes relacionats amb la gestio de BD
+ * 
+ * @author David Reinón
+ * @author Alejandro Tos
+ */
 public class Model {
 
-	private Connection con = null;
+	private Connection con;
+	private String tipusConexio;
 
+	public String getTipusConexio() {
+		return tipusConexio;
+	}
+
+	/**
+	 * Obri la conexio a la BD
+	 * 
+	 * @param tipus de usuario (admin o client)
+	 */
 	public void openConexion(String tipusUser) {
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
@@ -31,10 +47,13 @@ public class Model {
 			con = DriverManager.getConnection(userConexioBD.getUrl(), userConexioBD.getUsuari(),
 					userConexioBD.getContrasenya());
 		} catch (Exception e) {
-
+			e.printStackTrace();
 		}
 	}
 
+	/**
+	 * Tanca la BD
+	 */
 	public void closeConexion() {
 		try {
 			if (con != null) {
@@ -46,6 +65,12 @@ public class Model {
 		}
 	}
 
+	/**
+	 * Extrau la informacio de un respectiu XML per a conectarse a la BD.
+	 * 
+	 * @param tipusUser tipus de usuari (admin o client)
+	 * @return clase amb la informacio necesaria
+	 */
 	private UserConexioBD credencialsConexioBD(String tipusUser) {
 		UserConexioBD userConexioBD = new UserConexioBD();
 		try {
@@ -55,8 +80,10 @@ public class Model {
 			String rutaDirectoriActual = System.getProperty("user.dir");
 			if (tipusUser.equals("client")) {
 				rutaDirectoriActual += "\\client.xml";
+				tipusConexio = "client";
 			} else if (tipusUser.equals("admin")) {
 				rutaDirectoriActual += "\\admin.xml";
+				tipusConexio = "admin";
 			}
 
 			Document document = dBuilder.parse(new File(rutaDirectoriActual));
@@ -82,12 +109,17 @@ public class Model {
 		return userConexioBD;
 	}
 
+	/**
+	 * Comproba si l'usuari existeix en la BD
+	 * 
+	 * @param nom
+	 * @return true si exiteix, false si no.
+	 */
 	public boolean comprobarUserExisteix(String nom) {
 		boolean usuarioExiste = false;
 		try {
 			String nomString = nom;
 
-			// Realiza la consulta preparada para evitar la inyección de SQL
 			String query = "SELECT user FROM users WHERE user = ?";
 			PreparedStatement pstmt = con.prepareStatement(query);
 			pstmt.setString(1, nomString);
@@ -105,11 +137,16 @@ public class Model {
 		return usuarioExiste;
 	}
 
+	/**
+	 * Comproba que la contrasenya del usuari siga correcta.
+	 * 
+	 * @param usuari
+	 * @param contrasenya
+	 * @return true si es correcta, de lo contrari false.
+	 */
 	public boolean comprobarContrasenya(String usuari, String contrasenya) {
 		boolean contrasenyaCorrecta = false;
 		try {
-			// Realiza la consulta para obtener la contraseña encriptada almacenada para el
-			// usuario
 			String query = "SELECT pass FROM users WHERE user = ?";
 			PreparedStatement pstmt = con.prepareStatement(query);
 			pstmt.setString(1, usuari);
@@ -125,48 +162,85 @@ public class Model {
 				}
 			}
 
-			pstmt.close(); // Cierra la declaración preparada
+			pstmt.close();
 		} catch (SQLException e) {
-			e.printStackTrace(); // Manejo básico de excepciones. Considera manejarlas de forma más apropiada.
+			e.printStackTrace();
 		}
 		return contrasenyaCorrecta;
 	}
 
-	public ArrayList<ArrayList<Object>> ejecutarConsulta(String consulta) {
-	    ArrayList<ArrayList<Object>> resultado = new ArrayList<>();
+	/**
+	 * Executa una consulta select y torna la informacio incluint el nom de les
+	 * columnes
+	 * 
+	 * @param consultaString Consulta proprocionada per l'usuarí
+	 * @return array de objectes con tota la informacio
+	 */
+	public ArrayList<Object> executarConsultaSelect(String consulta) {
+		ArrayList<Object> resultat = new ArrayList<>();
 
-	    try {
-	        Statement stmt = con.createStatement();
+		try {
+			Statement stmt = con.createStatement();
 
-	        if (consulta.trim().toLowerCase().startsWith("select")) {
-	            ResultSet rs = stmt.executeQuery(consulta);
-	            
-	            ResultSetMetaData metaData = rs.getMetaData();
-	            int numColumnas = metaData.getColumnCount();
+			if (consulta.trim().toLowerCase().startsWith("select")) {
+				ResultSet rs = stmt.executeQuery(consulta);
 
-	            for (int i = 1; i <= numColumnas; i++) {
-	                ArrayList<Object> columna = new ArrayList<>();
-	                columna.add(metaData.getColumnName(i));
-	                resultado.add(columna);
-	            }
+				ResultSetMetaData metaData = rs.getMetaData();
+				int numColumnas = metaData.getColumnCount();
 
-	            while (rs.next()) {
-	                for (int i = 1; i <= numColumnas; i++) {
-	                    resultado.get(i - 1).add(rs.getObject(i));
-	                }
-	            }
-	        } else {
-	            resultado = null;
-	        }
+				Object[] columnesObjecte = new Object[numColumnas];
+				for (int i = 1; i <= numColumnas; i++) {
+					columnesObjecte[i - 1] = metaData.getColumnName(i);
 
-	        stmt.close();
-	    } catch (SQLException e) {
-	        e.printStackTrace();
-	    }
+				}
+				resultat.add(columnesObjecte);
 
-	    return resultado;
+				while (rs.next()) {
+					Object[] rowObjecte = new Object[numColumnas];
+					for (int i = 1; i <= numColumnas; i++) {
+						rowObjecte[i - 1] = rs.getString(i);
+					}
+					resultat.add(rowObjecte);
+				}
+			} else {
+				resultat = null;
+			}
+
+			stmt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+
+		return resultat;
 	}
 
+	/**
+	 * Execute consulta insert, update o delete
+	 * 
+	 * @param consultaString Consulta de l'usuari
+	 * @return true si s'executa correctament, false si no.
+	 */
+	public boolean executarOtraConsulta(String consulta) {
+		boolean consultaCorrecta = true;
+		try {
+			Statement stmt = con.createStatement();
 
+			if (!consulta.trim().toLowerCase().startsWith("select")) {
+				int filasAfectadas = stmt.executeUpdate(consulta);
+
+				if (filasAfectadas == 0)
+					consultaCorrecta = false;
+			} else
+				consultaCorrecta = false;
+
+			stmt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+
+		return consultaCorrecta;
+	}
 
 }
