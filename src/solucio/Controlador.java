@@ -1,4 +1,4 @@
-package es.florida.ad_ae02;
+package solucio;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;

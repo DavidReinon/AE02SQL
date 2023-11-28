@@ -1,4 +1,4 @@
-package es.florida.ad_ae02;
+package solucio;
 
 public class Principal {
 

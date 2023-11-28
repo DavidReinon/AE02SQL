@@ -1,4 +1,4 @@
-package es.florida.ad_ae02;
+package solucio;
 
 import javax.swing.JFrame;
 import javax.swing.JButton;
